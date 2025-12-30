@@ -15,11 +15,7 @@ function GameEngine () {
 
     let lastPlayer = ""
 
-    const play = (player, position) => {
-        if (player != "O" && player != "X") {
-            console.log("Invalid player " + player)
-            return
-        }
+    const play = (position) => {
         if (position < 1 || position > 9) {
             console.log("Invalid position " + position)
             return
@@ -28,12 +24,19 @@ function GameEngine () {
             console.log("This position is already taken")
             return
         }
-        if (lastPlayer === player) {
-            console.log("This player cannot play again since it was the last one to play")
-            return
+
+        let currPlayer = ""
+
+        if (lastPlayer === "O" || lastPlayer === "") {
+            currPlayer = "X"
         }
-        gameState[position] = player
-        lastPlayer = player
+        
+        if (lastPlayer === "X") {
+            currPlayer = "O"
+        }
+
+        gameState[position] = currPlayer
+        lastPlayer = currPlayer
     }
 
     const calculateWinner = () => {
@@ -101,21 +104,36 @@ function Scoreboard () {
 }
 
 function Board (gameEngine) {
-    const boardgame = document.querySelector("#board")
+
     const renderBoard = () => {
         const state = gameEngine.getGameState()
         for (let i = 1; i < 10; i++) {
             const value = state[i]
             if (value === 0) {
-                return
+                continue
             }
-            const id = "#cell-" + i
-            const cell = document.querySelector(id)
+            const selector = `.cell[data-index="${i}"]`;
+            const cell = document.querySelector(selector)
             cell.textContent = value
         }
     }
 
+    const handleClick = (event) => {
+        const position = event.target.dataset.index
+        gameEngine.play(position)
+        renderBoard()
+    }
+
+    const init = () => {
+        const board = document.querySelector("#board") 
+        board.addEventListener("click", handleClick)
+    }
+
     return {
-        renderBoard
+        init
     }
 }
+
+const game = GameEngine()
+const score = Scoreboard()
+const board = Board(game).init()
