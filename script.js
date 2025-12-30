@@ -80,10 +80,10 @@ function Scoreboard () {
             console.log("Invalid player " + player)
             return
         }
-        if (player = "X") {
+        if (player === "X") {
             score["X"]++
         }
-        if (player = "O") {
+        if (player === "O") {
             score["O"]++
         }
     }
