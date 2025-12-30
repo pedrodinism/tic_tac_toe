@@ -1,0 +1,17 @@
+#board {
+    display: flex;
+    justify-content: center;
+    width: 605px;
+    height: 605px;
+    flex-wrap: wrap;
+}
+
+.cell {
+    height: 200px;
+    width: 200px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10rem;
+}
