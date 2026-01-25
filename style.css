@@ -1,8 +1,8 @@
 #board {
     display: flex;
     justify-content: center;
-    width: 605px;
-    height: 605px;
+    width: 606px;
+    height: 606px;
     flex-wrap: wrap;
 }
 

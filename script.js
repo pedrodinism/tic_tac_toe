@@ -2,15 +2,15 @@
 
 function GameEngine () {
     const gameState = {
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0
+        1: '',
+        2: '',
+        3: '',
+        4: '',
+        5: '',
+        6: '',
+        7: '',
+        8: '',
+        9: ''
     };
 
     let lastPlayer = ""
@@ -20,7 +20,7 @@ function GameEngine () {
             console.log("Invalid position " + position)
             return
         }
-        if (gameState[position] != 0) {
+        if (gameState[position] != '') {
             console.log("This position is already taken")
             return
         }
@@ -45,9 +45,15 @@ function GameEngine () {
                                [1,5,9], [3,5,7]] // diagonals
         for (let combo of winningCombos) {
             const [a,b,c] = combo
-            if (gameState[a] != 0 && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+            if (gameState[a] != '' && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
                 return gameState[a]
             }
+        }
+    }
+
+    const resetGameState = () => {
+        for(let i = 1; i <= 9; i++) {
+            gameState[i] = ''
         }
     }
 
@@ -58,7 +64,8 @@ function GameEngine () {
     return {
         play,
         getGameState,
-        calculateWinner
+        calculateWinner,
+        resetGameState
     }
 }
 
@@ -86,6 +93,15 @@ function Scoreboard () {
         if (player === "O") {
             score["O"]++
         }
+        renderScore()
+    }
+
+    const renderScore = () => {
+        const scoreX = document.querySelector('#scoreboard-item-X .score')
+        const scoreO = document.querySelector('#scoreboard-item-O .score')
+
+        scoreX.textContent = score['X']
+        scoreO.textContent = score['O']
     }
 
     const getPlayerScore = (player) => {
@@ -103,15 +119,12 @@ function Scoreboard () {
     }
 }
 
-function Board (gameEngine) {
+function Board (gameEngine, scoreboard) {
 
     const renderBoard = () => {
         const state = gameEngine.getGameState()
         for (let i = 1; i < 10; i++) {
             const value = state[i]
-            if (value === 0) {
-                continue
-            }
             const selector = `.cell[data-index="${i}"]`;
             const cell = document.querySelector(selector)
             cell.textContent = value
@@ -121,7 +134,15 @@ function Board (gameEngine) {
     const handleClick = (event) => {
         const position = event.target.dataset.index
         gameEngine.play(position)
+        const winner = gameEngine.calculateWinner()
         renderBoard()
+        if (winner != undefined) {
+            scoreboard.addPoint(winner)
+            setTimeout(() => {
+                gameEngine.resetGameState()
+                renderBoard()
+            }, 500);
+        }        
     }
 
     const init = () => {
@@ -136,4 +157,4 @@ function Board (gameEngine) {
 
 const game = GameEngine()
 const score = Scoreboard()
-const board = Board(game).init()
+const board = Board(game, score).init()
