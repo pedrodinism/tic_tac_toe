@@ -16,6 +16,7 @@ function GameEngine () {
     let lastPlayer = ""
 
     const play = (position) => {
+        position = Number(position)
         if (position < 1 || position > 9) {
             console.log("Invalid position " + position)
             return
@@ -25,15 +26,7 @@ function GameEngine () {
             return
         }
 
-        let currPlayer = ""
-
-        if (lastPlayer === "O" || lastPlayer === "") {
-            currPlayer = "X"
-        }
-        
-        if (lastPlayer === "X") {
-            currPlayer = "O"
-        }
+        const currPlayer = lastPlayer === "X" ? "O" : "X"
 
         gameState[position] = currPlayer
         lastPlayer = currPlayer
@@ -77,6 +70,14 @@ function Scoreboard () {
         "O": 0 
     }
 
+    let playerX = ""
+    let playerO = ""
+
+    const setPlayerNames = (x, o) => {
+        playerX = x
+        playerO = o
+    }
+
     const resetScore = () => {
         score["X"] = 0
         score["O"] = 0
@@ -93,29 +94,27 @@ function Scoreboard () {
         if (player === "O") {
             score["O"]++
         }
-        renderScore()
+        render()
     }
 
-    const renderScore = () => {
+    const render = () => {
         const scoreX = document.querySelector('#scoreboard-item-X .score')
         const scoreO = document.querySelector('#scoreboard-item-O .score')
+        const x = document.querySelector('#scoreboard-item-X .playerName')
+        const o = document.querySelector('#scoreboard-item-O .playerName')
+
 
         scoreX.textContent = score['X']
         scoreO.textContent = score['O']
-    }
-
-    const getPlayerScore = (player) => {
-        if (player != "X" && player != "O") {
-            console.log("Invalid player " + player)
-            return
-        }
-        return score[player]
+        x.textContent = playerX
+        o.textContent = playerO
     }
 
     return {
         resetScore,
         addPoint,
-        getPlayerScore
+        setPlayerNames,
+        render
     }
 }
 
@@ -132,6 +131,7 @@ function Board (gameEngine, scoreboard) {
     }
 
     const handleClick = (event) => {
+        if (!event.target.classList.contains("cell")) return
         const position = event.target.dataset.index
         gameEngine.play(position)
         const winner = gameEngine.calculateWinner()
@@ -157,4 +157,20 @@ function Board (gameEngine, scoreboard) {
 
 const game = GameEngine()
 const score = Scoreboard()
-const board = Board(game, score).init()
+const board = Board(game, score)
+board.init()
+
+document.querySelector('#modal').showModal()
+const submitButton = document.querySelector('#submit')
+
+
+submitButton.onclick = () => {
+    const x = document.querySelector('#playerX').value
+    const o = document.querySelector('#playerO').value 
+
+    score.setPlayerNames(x, o)
+    score.render()
+    document.querySelector('#modal').close()
+
+    board.init()
+}
